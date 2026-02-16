@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* --- 1. COLORS & THEME --- */
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #1a1a1a; color: #ddd; }
+        .container { max-width: 750px; background: #2d2d2d; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin: auto; }
+        
+        /* LOGO STYLING */
+        .logo-container { text-align: center; margin-bottom: 15px; }
+        .dept-logo { width: 120px; height: auto; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
+
+        h2 { color: #f1c40f; text-align: center; border-bottom: 2px solid #f1c40f; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
+		h3 { color: #f1c40f; text-align: center; padding-bottom: 1px; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; } 
+        
+        .tabs-container { margin-top: 20px; }
+        .tab-radio { display: none; }
+        .tab-labels { display: flex; gap: 5px; border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-label { background: #444; color: white; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; flex: 1; text-align: center; transition: 0.2s; min-width: 100px; }
+        
+        #tab1:checked ~ .tab-labels label[for="tab1"],
+        #tab2:checked ~ .tab-labels label[for="tab2"],
+        #tab3:checked ~ .tab-labels label[for="tab3"],
+        #tab4:checked ~ .tab-labels label[for="tab4"],
+        #tab5:checked ~ .tab-labels label[for="tab5"] { background: #f1c40f; color: #1a1a1a; }
+
+        .report-section { display: none; }
+        #tab1:checked ~ #section-arrest,
+        #tab2:checked ~ #section-citation,
+        #tab3:checked ~ #section-decom,
+        #tab4:checked ~ #section-stolen,
+        #tab5:checked ~ #section-impound { display: block; }
+
+        /* Conditional Logic for the "Refer Arrest" field in header */
+        #impoundOnlyField { display: none; }
+        #tab5:checked ~ .flex-row #impoundOnlyField { display: block; }
+
+        label { font-weight: bold; display: block; margin-top: 15px; color: #f1c40f; font-size: 0.85em; }
+        input, textarea, select { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; background: #3d3d3d; border: 1px solid #555; color: white; border-radius: 4px; }
+        .flex-row { display: flex; gap: 10px; }
+        
+        .postal-btns { display: flex; gap: 5px; margin-top: 8px; } 
+        .p-btn { flex: 1; background: #555; border: none; color: white; padding: 5px; border-radius: 3px; cursor: pointer; font-size: 0.75em; }
+        .p-btn:hover { background: #f1c40f; color: #1a1a1a; }
+        
+        .time-btn { background: #3498db; color: white; padding: 5px 10px; margin-top: 5px; font-size: 0.8em; border: none; border-radius: 4px; cursor: pointer;}
+        
+        .plea-container { display: flex; gap: 15px; background: #252525; padding: 10px; border-radius: 5px; border: 1px solid #444; margin-top: 5px; }
+        .plea-option { display: flex; align-items: center; font-size: 0.85em; cursor: pointer; }
+        .plea-option input { width: auto; margin-right: 5px; margin-top: 0; }
+
+        .btn-container { display: flex; gap: 15px; margin-top: 25px; justify-content: center; align-items: center; }
+        button.main-btn { width: 250px; background: #f1c40f; color: #1a1a1a; padding: 12px; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 1.1em; }
+        .clear-btn { width: 120px; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        #output { white-space: pre-wrap; background: #111; padding: 15px; margin-top: 20px; border-left: 5px solid #f1c40f; display: none; color: #fff; font-family: 'Courier New', Courier, monospace; line-height: 1.5; width: 100%; min-height: 250px; box-sizing: border-box; font-size: 1.1em; }
+        
+        .charge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #252525; padding: 12px; border-radius: 5px; border: 1px solid #444; margin-top: 5px; }
+        .charge-item { display: flex; align-items: center; font-size: 0.82em; cursor: pointer; color: #fff; }
+        .charge-item input { width: auto; margin-right: 8px; margin-top: 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-container">
+        <img class="dept-logo" src="https://i.postimg.cc/Y2dZN3x4/BCSOLogo-Transparent.png" alt="Blaine County Sheriff's Office">
+    </div>
+	<h3>BCSO Report Tool</h3>
+    <h2>Test Version Authorized Access Only</h2>
+    
+    <div class="tabs-container">
+        <input type="radio" name="tabs" id="tab1" class="tab-radio" checked>
+        <input type="radio" name="tabs" id="tab2" class="tab-radio">
+        <input type="radio" name="tabs" id="tab3" class="tab-radio">
+        <input type="radio" name="tabs" id="tab4" class="tab-radio">
+        <input type="radio" name="tabs" id="tab5" class="tab-radio">
+
+        <div class="tab-labels">
+            <label for="tab1" class="tab-label">Arrest</label>
+            <label for="tab2" class="tab-label">Citation</label>
+            <label for="tab3" class="tab-label">Decommission</label>
+            <label for="tab4" class="tab-label">Stolen Weapon</label>
+            <label for="tab5" class="tab-label">Impound</label>
+        </div>
+        
+        <div class="flex-row">
+            <div style="flex: 1;"><label>Unit #:</label><input type="text" id="unitNum" placeholder="e.g. C-41"></div>
+            <div style="flex: 2;"><label>Officer Name:</label><input type="text" id="officerName" placeholder="Full Name"></div>
+            <div style="flex: 1.5;">
+                <label>Postal:</label>
+                <input type="text" id="postal" placeholder="Leave blank to hide">
+                <div class="postal-btns">
+                    <button type="button" class="p-btn" onclick="setPostal('BCSO')">BCSO</button>
+                    <button type="button" class="p-btn" onclick="setPostal('MRPD')">MRPD</button>
+                    <button type="button" class="p-btn" onclick="setPostal('TrooperHQ')">HQ</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex-row">
+            <div style="flex: 1;"><label>Judgement #:</label><input type="text" id="subJudgementNum"></div>
+            <div style="flex: 1;"><label>Report #:</label><input type="text" id="subReportNum"></div>
+            <div style="flex: 1;" id="impoundOnlyField"><label>Reference Arrest-Report #:</label><input type="text" id="referArrestNum" placeholder="e.g. #1234"></div>
+        </div>
+
+        <label>Incident Date & Time:</label>
+        <div class="flex-row" style="align-items: center;">
+            <input type="datetime-local" id="dateTime" style="flex: 3;">
+            <button class="time-btn" onclick="setCurrentTime()">Set Now</button>
+        </div>
+
+        <div id="section-arrest" class="report-section">
+            <div class="flex-row">
+                <div style="flex: 2;"><label>Suspect Name:</label><input type="text" id="subName"></div>
+                <div style="flex: 1;"><label>CID:</label><input type="text" id="subCID"></div>
+            </div>
+            <label>Plea:</label>
+            <div class="plea-container">
+                <label class="plea-option"><input type="radio" name="pleaChoice" value="GUILTY"> GUILTY</label>
+                <label class="plea-option"><input type="radio" name="pleaChoice" value="NOT GUILTY"> NOT GUILTY</label>
+                <label class="plea-option"><input type="radio" name="pleaChoice" value="NO CONTEST"> NO CONTEST</label>
+            </div>
+            <label>Charges (HIGHEST FIRST):</label>
+            <input type="text" id="arrestCharges" placeholder="e.g. Felony Evading, Vandalism">
+            <label>Evidence (Separate with commas):</label>
+            <textarea id="arrestEvidence" rows="2" placeholder="x1 Pistol, 2g Cocaine..."></textarea>
+        </div>
+
+        <div id="section-citation" class="report-section">
+            <div class="flex-row">
+                <div style="flex: 2;"><label>Suspect Name:</label><input type="text" id="subNameCite"></div>
+                <div style="flex: 1;"><label>CID:</label><input type="text" id="subCIDCite"></div>
+            </div>
+            <label>Violations (Check all that apply):</label>
+            <div class="charge-grid">
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Speeding"> Speeding</label>        
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Negligent Driving"> Negligent Driving</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="2nd Degree Speeding"> 2nd Degree Speeding</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Impeding Traffic Flow"> Impeding Traffic Flow</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Nonfunctional Vehicle"> Nonfunctional Vehicle</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Illegal U-Turn"> Illegal U-Turn</label>    
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Unauthorized Parking"> Unauthorized Parking</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Illegal Turn"> Illegal Turn</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Unlicensed Operation"> Unlicensed Operation</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Illegal Passing"> Illegal Passing</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Headlight Violation"> Headlight Violation</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="No Identification"> No Identification</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Failure to Maintain Lane"> Fail Maintain Lane</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Fail to Obey Traffic Signal"> Fail Obey Signal</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Failure to Stop"> Failure to Stop</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Excessive Vehicle Noise"> Excessive Noise</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Fail to Yield to Emergency"> Fail Yield To Emergency</label>
+            </div>
+        </div>
+
+        <div id="section-decom" class="report-section">
+            <div class="flex-row">
+                <div style="flex: 2;"><label>Subject Name:</label><input type="text" id="subNameDecom"></div>
+                <div style="flex: 1;"><label>CID:</label><input type="text" id="subCIDDecom"></div>
+            </div>
+            <div class="flex-row">
+                <div style="flex:1"><label>Weapon Type:</label><input type="text" id="decomWeapon" placeholder="e.g. Combat Pistol"></div>
+                <div style="flex:1"><label>Serial Number:</label><input type="text" id="decomSerial" placeholder="e.g. SN-1234"></div>
+            </div>
+            <div class="flex-row">
+                <div style="flex:1"><label>Weapon Received By:</label><input type="text" id="decomReceiver" placeholder="Leave blank for yourself"></div>
+                <div style="flex:1"><label>Evidence Locker:</label><input type="text" id="decomLocker" placeholder="e.g. BCSO Locker 1"></div>
+            </div>
+        </div>
+
+        <div id="section-stolen" class="report-section">
+            <div class="flex-row">
+                <div style="flex: 2;"><label>Subject Name:</label><input type="text" id="subNameStolen"></div>
+                <div style="flex: 1;"><label>CID:</label><input type="text" id="subCIDStolen"></div>
+            </div>
+            <div class="flex-row">
+                <div style="flex:1"><label>Stolen Weapon:</label><input type="text" id="stolenWeapon"></div>
+                <div style="flex:1"><label>Serial Number:</label><input type="text" id="stolenSerial"></div>
+            </div>
+        </div>
+
+        <div id="section-impound" class="report-section">
+            <div class="flex-row">
+                <div style="flex: 1;"><label>Vehicle Make/Model:</label><input type="text" id="impoundVeh" placeholder="e.g. Sultan"></div>
+                <div style="flex: 1;"><label>Plate/VIN:</label><input type="text" id="impoundPlate" placeholder="e.g. ABC123"></div>
+            </div>
+            <div class="flex-row">
+                <div style="flex: 1;"><label>Owner:</label><input type="text" id="impoundOwner"></div>
+                <div style="flex: 1;"><label>CID:</label><input type="text" id="impoundCID"></div>
+            </div>
+            <label>Fine Calculator:</label>
+            <div class="flex-row">
+                <select id="carType" onchange="calculateFine()">
+                    <option value="" disabled selected>Select Car Type</option>
+                    <option value="PDM">PDM (Normal)</option>
+                    <option value="PDM+">PDM+ (Sport/Super/Bikes)</option>
+                    <option value="Import">Import</option>
+                </select>
+                <select id="crimeType" onchange="calculateFine()">
+                    <option value="" disabled selected>Select Crime</option>
+                    <option value="Non-Violent">Non-Violent (Misdemeanor)</option>
+                    <option value="Violent">Violent (Felony)</option>
+                </select>
+            </div>
+            <div class="flex-row">
+                <div style="flex: 1;"><label>Fine Amount ($):</label><input type="text" id="impoundFine" placeholder="Manual Entry Allowed"></div>
+                <div style="flex: 1;">
+                    <label>Hold Length:</label>
+                    <select id="impoundDays" onchange="updateReleaseDate()">
+                        <option value="" disabled selected>Select Days</option>
+                        <option value="1">1 Day</option>
+                        <option value="2">2 Days</option>
+                        <option value="3">3 Days</option>
+                        <option value="4">4 Days</option>
+                        <option value="5">5 Days</option>
+                        <option value="6">6 Days</option>
+                        <option value="7">7 Days</option>
+                    </select>
+                </div>
+            </div>
+            <label>Release Date:</label>
+            <input type="text" id="releaseDate" placeholder="Auto-Calculated">
+            <label>Reason for Impound:</label>
+            <textarea id="impoundReason" rows="2" placeholder="e.g. Felony Evading..."></textarea>
+        </div>
+
+        <label>Narrative Details:</label>
+        <textarea id="details" rows="4" placeholder="While at the office, Tark was drinking a banana shake."></textarea>
+
+        <div class="btn-container">
+            <button class="main-btn" id="genBtn" onclick="generateReport()">Generate & Copy Report</button>
+            <button class="clear-btn" onclick="clearForm()">Clear</button>
+        </div>
+
+        <textarea id="output" readonly></textarea>
+    </div>
+</div>
+
+<script>
+    function setPostal(val) { document.getElementById('postal').value = val; }
+    
+    function setCurrentTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('dateTime').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        updateReleaseDate();
+    }
+
+    function calculateFine() {
+        const car = document.getElementById('carType').value;
+        const crime = document.getElementById('crimeType').value;
+        const rates = {
+            'PDM': {'Non-Violent': 5000, 'Violent': 10000},
+            'PDM+': {'Non-Violent': 8000, 'Violent': 15000},
+            'Import': {'Non-Violent': 10000, 'Violent': 20000}
+        };
+        if(rates[car] && rates[car][crime]) {
+            document.getElementById('impoundFine').value = rates[car][crime];
+        }
+    }
+
+    function updateReleaseDate() {
+        const days = parseInt(document.getElementById('impoundDays').value);
+        const dtInput = document.getElementById('dateTime').value;
+        if(!dtInput || isNaN(days)) return;
+        const date = new Date(dtInput);
+        date.setDate(date.getDate() + days);
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        document.getElementById('releaseDate').value = date.toLocaleDateString('en-US', options);
+    }
+
+    function generateReport() {
+        const activeTabId = document.querySelector('input[name="tabs"]:checked').id;
+        const name = document.getElementById('officerName').value || "[Name]";
+        const unit = document.getElementById('unitNum').value || "[Unit]";
+        const jNum = document.getElementById('subJudgementNum').value || "N/A";
+        const rNum = document.getElementById('subReportNum').value || "N/A";
+        const postalInput = document.getElementById('postal').value.trim();
+        const fullID = `${unit}  ${name}`;
+        
+        let postalStr = postalInput ? (["BCSO", "MRPD", "TrooperHQ"].includes(postalInput) ? ` at ${postalInput}` : ` at Postal: ${postalInput}`) : "";
+        
+        const dtInput = document.getElementById('dateTime').value;
+        let dateStr = dtInput ? new Date(dtInput).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZoneName: 'short' }).replace(',', '') : "[Date/Time Not Set]";
+        
+        const footer = `Respectfully,\n\n${fullID}\nBlaine County Sheriff's Office`;
+        
+        // STANDARD HEADER (for Arrest, Citation, Decom, Stolen)
+        let headerInfo = `Judgement #: ${jNum}`;
+
+        let finalReport = "";
+
+        if(activeTabId === 'tab1') { // ARREST
+            const sName = document.getElementById('subName').value || "[Suspect]";
+            const sCID = document.getElementById('subCID').value || "[CID]";
+            const rawCharges = document.getElementById('arrestCharges').value || "Arrest";
+            const pleaText = document.querySelector('input[name="pleaChoice"]:checked')?.value || "[No Plea]";
+            const chargeBullets = rawCharges.split(',').map(s => `  • ${s.trim()}`).join('\n');
+            finalReport = `${sCID} - ${sName} - ${rawCharges.split(',')[0]}\n${headerInfo}\n\nNARRATIVE:\nOn ${dateStr}${postalStr}, I, ${fullID}, observed the following:\n\n${document.getElementById('details').value || "..."}\n\nPlea: ${pleaText}\n\nCharges:\n${chargeBullets}\n\nEvidence:\n${document.getElementById('arrestEvidence').value || "None"}\n\n${footer}`;
+        } 
+        else if(activeTabId === 'tab2') { // CITATION
+            const sName = document.getElementById('subNameCite').value || "[Suspect]";
+            const sCID = document.getElementById('subCIDCite').value || "[CID]";
+            const checkedBoxes = document.querySelectorAll('.traffic-chk:checked');
+            let violationsList = checkedBoxes.length > 0 ? Array.from(checkedBoxes).map(c => `  • ${c.value}`).join('\n') : "  • None";
+            finalReport = `${sCID} - ${sName} - Citation\n${headerInfo}\n\nNARRATIVE:\nOn ${dateStr}${postalStr}, the following was observed resulting in a citation: \n\n${document.getElementById('details').value}\n\nViolations:\n${violationsList}\n\n${footer}`;
+        }
+        else if(activeTabId === 'tab3') { // DECOMMISSION
+            const sName = document.getElementById('subNameDecom').value || "[Subject]";
+            const sCID = document.getElementById('subCIDDecom').value || "[CID]";
+            const weapon = document.getElementById('decomWeapon').value;
+            const serial = document.getElementById('decomSerial').value;
+            const receiver = document.getElementById('decomReceiver').value || fullID;
+            const locker = document.getElementById('decomLocker').value;
+            finalReport = `${sCID} - ${sName} - Weapon Decommission\n${headerInfo}\n\n|WEAPON DETAILS|\nType: ${weapon}\nSerial: ${serial}\nLocker: ${locker}\nReceived By: ${receiver}\n\nNARRATIVE:\n${document.getElementById('details').value}\n\n${footer}`;
+        }
+        else if(activeTabId === 'tab4') { // STOLEN WEAPON
+            const sName = document.getElementById('subNameStolen').value || "[Subject]";
+            const sCID = document.getElementById('subCIDStolen').value || "[CID]";
+            const weapon = document.getElementById('stolenWeapon').value;
+            const serial = document.getElementById('stolenSerial').value;
+            finalReport = `${sCID} - ${sName} - Stolen Weapon Report\n${headerInfo}\n\n|WEAPON DETAILS|\nType: ${weapon}\nSerial: ${serial}\n\nNARRATIVE:\n${document.getElementById('details').value}\n\n${footer}`;
+        }
+        else if(activeTabId === 'tab5') { // IMPOUND
+            const veh = document.getElementById('impoundVeh').value || "[Vehicle]";
+            const plate = document.getElementById('impoundPlate').value || "[Plate]";
+            const referNum = document.getElementById('referArrestNum').value || "N/A";
+            // Custom Header for Impound only
+            finalReport = `${plate} - ${veh} - Impound Report\nJudgement #: ${jNum} | Reference Arrest-Report #: ${referNum}\n\n|VEHICLE DETAILS|\nMake/Model: ${veh}\nFull Plate/VIN: ${plate}\nReg. Owner: ${document.getElementById('impoundOwner').value}\nCID: ${document.getElementById('impoundCID').value}\nReason: ${document.getElementById('impoundReason').value}\nFine: $${document.getElementById('impoundFine').value}\nRelease Date: ${document.getElementById('releaseDate').value}\n\nNARRATIVE:\n${document.getElementById('details').value}\n\n${footer}`;
+        }
+
+        const out = document.getElementById('output');
+        out.value = finalReport;
+        out.style.display = 'block';
+        out.select();
+        document.execCommand('copy');
+        
+        const btn = document.getElementById('genBtn');
+        btn.innerText = "COPIED!";
+        btn.style.background = "#2ecc71";
+        setTimeout(() => { btn.innerText = "Generate & Copy Report"; btn.style.background = "#f1c40f"; }, 2000);
+    }
+
+    function clearForm() {
+        if(confirm("Clear all fields?")) {
+            document.querySelectorAll('input:not(#unitNum):not(#officerName), textarea, select').forEach(i => i.value = '');
+            document.querySelectorAll('.traffic-chk, .plea-option input').forEach(c => c.checked = false);
+            document.getElementById('output').style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
