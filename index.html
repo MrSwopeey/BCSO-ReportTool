@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* --- 1. COLORS & THEME --- */
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #1a1a1a; color: #ddd; }
+        .container { max-width: 750px; background: #2d2d2d; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin: auto; }
+        
+        /* LOGO STYLING - FIXED FOR TRANSPARENCY & FIT */
+        .logo-container { text-align: center; margin-bottom: 15px; }
+        .dept-logo { width: 120px; height: auto; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
+
+        h2 { color: #f1c40f; text-align: center; border-bottom: 2px solid #f1c40f; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
+        
+        .tabs-container { margin-top: 20px; }
+        .tab-radio { display: none; }
+        .tab-labels { display: flex; gap: 5px; border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 20px; }
+        .tab-label { background: #444; color: white; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; flex: 1; text-align: center; transition: 0.2s; }
+        
+        #tab1:checked ~ .tab-labels label[for="tab1"],
+        #tab2:checked ~ .tab-labels label[for="tab2"],
+        #tab3:checked ~ .tab-labels label[for="tab3"],
+        #tab4:checked ~ .tab-labels label[for="tab4"] { background: #f1c40f; color: #1a1a1a; }
+
+        .report-section { display: none; }
+        #tab1:checked ~ #section-arrest,
+        #tab2:checked ~ #section-citation,
+        #tab3:checked ~ #section-decom,
+        #tab4:checked ~ #section-stolen { display: block; }
+
+        label { font-weight: bold; display: block; margin-top: 15px; color: #f1c40f; font-size: 0.85em; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; background: #3d3d3d; border: 1px solid #555; color: white; border-radius: 4px; }
+        .flex-row { display: flex; gap: 10px; }
+        
+        .postal-btns { display: flex; gap: 5px; margin-top: 8px; } 
+        .p-btn { flex: 1; background: #555; border: none; color: white; padding: 5px; border-radius: 3px; cursor: pointer; font-size: 0.75em; }
+        .p-btn:hover { background: #f1c40f; color: #1a1a1a; }
+        
+        .time-btn { background: #3498db; color: white; padding: 5px 10px; margin-top: 5px; font-size: 0.8em; border: none; border-radius: 4px; cursor: pointer;}
+        
+        .plea-container { display: flex; gap: 15px; background: #252525; padding: 10px; border-radius: 5px; border: 1px solid #444; margin-top: 5px; }
+        .plea-option { display: flex; align-items: center; font-size: 0.85em; cursor: pointer; }
+        .plea-option input { width: auto; margin-right: 5px; margin-top: 0; }
+
+        .btn-container { display: flex; gap: 15px; margin-top: 25px; justify-content: center; align-items: center; }
+        button.main-btn { width: 250px; background: #f1c40f; color: #1a1a1a; padding: 12px; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 1.1em; }
+        .clear-btn { width: 120px; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        #output { white-space: pre-wrap; background: #111; padding: 15px; margin-top: 20px; border-left: 5px solid #f1c40f; display: none; color: #fff; font-family: 'Courier New', Courier, monospace; line-height: 1.5; width: 100%; min-height: 250px; box-sizing: border-box; font-size: 1.1em; }
+        
+        .charge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #252525; padding: 12px; border-radius: 5px; border: 1px solid #444; margin-top: 5px; }
+        .charge-item { display: flex; align-items: center; font-size: 0.82em; cursor: pointer; color: #fff; }
+        .charge-item input { width: auto; margin-right: 8px; margin-top: 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-container">
+        <img class="dept-logo" src="https://i.postimg.cc/Y2dZN3x4/BCSOLogo-Transparent.png" alt="Blaine County Sheriff's Office">
+    </div>
+
+    <h2>BCSO Report Tool</h2>
+    
+    <div class="tabs-container">
+        <input type="radio" name="tabs" id="tab1" class="tab-radio" checked>
+        <input type="radio" name="tabs" id="tab2" class="tab-radio">
+        <input type="radio" name="tabs" id="tab3" class="tab-radio">
+        <input type="radio" name="tabs" id="tab4" class="tab-radio">
+
+        <div class="tab-labels">
+            <label for="tab1" class="tab-label">Arrest</label>
+            <label for="tab2" class="tab-label">Citation</label>
+            <label for="tab3" class="tab-label">Decommission</label>
+            <label for="tab4" class="tab-label">Stolen Weapon</label>
+        </div>
+
+		<div class="flex-row">
+			<div style="flex: 1;"><label>Judgement #:</label><input type="text" id="subJudgement#"></div>
+			<div style="flex: 1;"><label>Report #:</label><input type="text" id="subReport#"></div>
+		</div>
+		
+        <div class="flex-row">
+            <div style="flex: 1;"><label>Unit #:</label><input type="text" id="unitNum" placeholder="e.g. C-41"></div>
+            <div style="flex: 2;"><label>Officer Name:</label><input type="text" id="officerName" placeholder="Full Name"></div>
+            <div style="flex: 1.5;">
+                <label>Postal:</label>
+                <input type="text" id="postal" placeholder="Leave blank to hide">
+                <div class="postal-btns">
+                    <button type="button" class="p-btn" onclick="setPostal('BCSO')">BCSO</button>
+                    <button type="button" class="p-btn" onclick="setPostal('MRPD')">MRPD</button>
+                    <button type="button" class="p-btn" onclick="setPostal('TrooperHQ')">HQ</button>
+                </div>
+            </div>
+        </div>
+
+        <label>Incident Date & Time:</label>
+        <div class="flex-row" style="align-items: center;">
+            <input type="datetime-local" id="dateTime" style="flex: 3;">
+            <button class="time-btn" onclick="setCurrentTime()">Set Now</button>
+        </div>
+
+        <div class="flex-row">
+			<div style="flex: 2;"><label>Subject Name:</label><input type="text" id="subName"></div>
+            <div style="flex: 1;"><label>CID:</label><input type="text" id="subCID"></div>
+        </div>
+        
+		<div id="section-arrest" class="report-section">
+            <label>Plea:</label>
+            <div class="plea-container">
+                <label class="plea-option"><input type="radio" name="pleaChoice" value="GUILTY"> GUILTY</label>
+                <label class="plea-option"><input type="radio" name="pleaChoice" value="NOT GUILTY"> NOT GUILTY</label>
+                <label class="plea-option"><input type="radio" name="pleaChoice" value="NO CONTEST"> NO CONTEST</label>
+            </div>
+
+            <label>Charges (Highest First):</label>
+            <input type="text" id="arrestCharges" placeholder="e.g. Felony Evading, Vandalism">
+            <label>Evidence (Separate with commas):</label>
+            <textarea id="arrestEvidence" rows="2" placeholder="x1 Pistol, 2g Cocaine..."></textarea>
+        </div>
+
+        <div id="section-citation" class="report-section">
+            <label>Violations (Check all that apply):</label>
+            <div class="charge-grid">
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Speeding"> Speeding</label>        
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Negligent Driving"> Negligent Driving</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="2nd Degree Speeding"> 2nd Degree Speeding</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Impeding Traffic Flow"> Impeding Traffic Flow</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Nonfunctional Vehicle"> Nonfunctional Vehicle</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Illegal U-Turn"> Illegal U-Turn</label>    
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Unauthorized Parking"> Unauthorized Parking</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Illegal Turn"> Illegal Turn</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Unlicensed Operation"> Unlicensed Operation</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Illegal Passing"> Illegal Passing</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Headlight Violation"> Headlight Violation</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="No Identification"> No Identification</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Failure to Maintain Lane"> Fail Maintain Lane</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Fail to Obey Traffic Signal"> Fail Obey Signal</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Failure to Stop"> Failure to Stop</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Excessive Vehicle Noise"> Excessive Noise</label>
+                <label class="charge-item"><input type="checkbox" class="traffic-chk" value="Fail to Yield to Emergency"> Fail Yield To Emergency</label>
+            </div>
+        </div>
+
+        <div id="section-decom" class="report-section">
+            <div class="flex-row">
+                <div style="flex:1"><label>Weapon Type:</label><input type="text" id="decomWeapon" placeholder="e.g. Combat Pistol"></div>
+                <div style="flex:1"><label>Serial Number:</label><input type="text" id="decomSerial" placeholder="e.g. SN-1234"></div>
+            </div>
+            <div class="flex-row">
+                <div style="flex:1"><label>Weapon Received By:</label><input type="text" id="decomReceiver" placeholder="Leave blank for yourself"></div>
+                <div style="flex:1"><label>Evidence Locker:</label><input type="text" id="decomLocker" placeholder="e.g. BCSO Locker 1"></div>
+            </div>
+        </div>
+
+        <div id="section-stolen" class="report-section">
+            <div class="flex-row">
+                <div style="flex:1"><label>Stolen Weapon:</label><input type="text" id="stolenWeapon"></div>
+                <div style="flex:1"><label>Serial Number:</label><input type="text" id="stolenSerial"></div>
+            </div>
+        </div>
+
+        <label>Narrative Details:</label>
+        <textarea id="details" rows="4"></textarea>
+
+        <div class="btn-container">
+            <button class="main-btn" id="genBtn" onclick="generateReport()">Generate & Copy Report</button>
+            <button class="clear-btn" onclick="clearForm()">Clear</button>
+        </div>
+
+        <textarea id="output" readonly></textarea>
+    </div>
+</div>
+
+<script>
+    function setPostal(val) { document.getElementById('postal').value = val; }
+    
+    function setCurrentTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('dateTime').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function generateReport() {
+        const activeTabId = document.querySelector('input[name="tabs"]:checked').id;
+        const name = document.getElementById('officerName').value || "[Name]";
+        const unit = document.getElementById('unitNum').value || "[Unit]";
+        const postalInput = document.getElementById('postal').value.trim();
+        const fullID = `${unit} ${name}`;
+        
+        let postalStr = "";
+        if (postalInput) {
+            const hotOptions = ["BCSO", "MRPD", "TrooperHQ"];
+            postalStr = hotOptions.includes(postalInput) ? ` at ${postalInput}` : ` at Postal: ${postalInput}`;
+        }
+        
+        const dtInput = document.getElementById('dateTime').value;
+        let dateStr = "[Date/Time Not Set]";
+        if(dtInput) {
+            const dateObj = new Date(dtInput);
+            const options = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZoneName: 'short' };
+            dateStr = dateObj.toLocaleString('en-US', options).replace(',', '');
+        }
+        
+        const sName = document.getElementById('subName').value || "[Subject Name]";
+        const sCID = document.getElementById('subCID').value || "[CID]";
+        const details = document.getElementById('details').value || "...";
+        const footer = `Respectfully,\n\n${fullID}\nBlaine County Sheriff's Office`;
+
+        let finalReport = "";
+
+        if(activeTabId === 'tab1') {
+            const rawCharges = document.getElementById('arrestCharges').value || "Arrest";
+            const chargeBullets = rawCharges.split(',').map(s => `  • ${s.trim()}`).join('\n');
+            const rawEvidence = document.getElementById('arrestEvidence').value || "None";
+            const evidenceList = rawEvidence.split(',').map(s => `  ${s.trim()}`).join('\n');
+            const selectedPlea = document.querySelector('input[name="pleaChoice"]:checked');
+            const pleaText = selectedPlea ? selectedPlea.value : "[No Plea Recorded]";
+
+            finalReport = `${sCID} - ${sName} - ${rawCharges.split(',')[0]}\n\nREPORT NARRATIVE:\n\nOn ${dateStr}${postalStr}, I, ${fullID}, observed the following: \n\n${details}\n\nPlea: ${pleaText}\n\nCharges:\n${chargeBullets}\n\nEvidence Located:\n${evidenceList}\n\n${footer}`;
+        } 
+        else if(activeTabId === 'tab2') {
+            const checkedBoxes = document.querySelectorAll('.traffic-chk:checked');
+            let violationsList = checkedBoxes.length > 0 ? Array.from(checkedBoxes).map(c => `  • ${c.value}`).join('\n') : "  • No specific violations selected.";
+            finalReport = `${sCID} - ${sName} - Citation\n\nREPORT NARRATIVE:\n\nOn ${dateStr}${postalStr}, I, ${fullID}, observed the following: \n\n${details}\n\nViolations Issued:\n${violationsList}\n\n${footer}`;
+        }
+        else if(activeTabId === 'tab3') {
+            const w = document.getElementById('decomWeapon').value || "[Weapon]";
+            const sn = document.getElementById('decomSerial').value || "[Serial]";
+            const locker = document.getElementById('decomLocker').value || "[Locker]";
+            let receiver = document.getElementById('decomReceiver').value.trim() || fullID;
+            finalReport = `${sCID} - ${sName} - Firearm Decommission\n\nREPORT NARRATIVE:\n\nOn ${dateStr}${postalStr}, I, ${fullID}, processed a firearm for decommission: \n\n${details}\n\nWeapon: ${w}\nSerial number: ${sn}\nWeapon Received By: ${receiver}\nPlaced in evidence locker: ${locker}\n\n${footer}`;
+        }
+        else if(activeTabId === 'tab4') {
+            const w = document.getElementById('stolenWeapon').value || "[Weapon]";
+            const sn = document.getElementById('stolenSerial').value || "[Serial]";
+            finalReport = `${sCID} - ${sName} - Firearm Stolen\n\nREPORT NARRATIVE:\n\nOn ${dateStr}${postalStr}, I, ${fullID}, took a report for a stolen firearm: \n\n${details}\n\nWeapon: ${w}\nSerial number: ${sn}\n\n${footer}`;
+        }
+
+        const out = document.getElementById('output');
+        out.value = finalReport;
+        out.style.display = 'block';
+        out.select();
+        document.execCommand('copy');
+        
+        const btn = document.getElementById('genBtn');
+        btn.innerText = "COPIED!";
+        btn.style.background = "#2ecc71";
+        setTimeout(() => { btn.innerText = "Generate & Copy Report"; btn.style.background = "#f1c40f"; }, 2000);
+    }
+
+    function clearForm() {
+        if(confirm("Clear all fields?")) {
+            document.querySelectorAll('.traffic-chk').forEach(c => c.checked = false);
+            document.querySelectorAll('input[name="pleaChoice"]').forEach(p => p.checked = false);
+            document.querySelectorAll('input, textarea').forEach(i => {
+                if(i.type !== 'radio' && i.name !== 'tabs') i.value = '';
+            });
+            document.getElementById('output').style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
